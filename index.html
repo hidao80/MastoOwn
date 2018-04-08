@@ -3,48 +3,18 @@
 <head>
 	<meta charset="UTF-8" />
 	<title>MastoFilter</title>
+	<script src="./main.js"></script>
+	<link href="./style.css" rel="stylesheet" type="text/css">
 </head>
-<body>
+<body onload="minId = -1;">
 	<div id="form" class='form'>
-		現在、Qiitadon.com専用です。<br>
-<!--		<label for="instans">インスタンス</label><input type="text" id="instans" placeholder="qiitadon.com" /><br>-->
+		<label for="instance">インスタンス</label><input type="text" id="instance" placeholder="https://qiitadon.com" value="https://qiitadon.com" /><br>
 		<label for="query">タグ</label><input type="text" id="tag" />
-		<input type="button" value="送信" onclick="search()" />
 	</div>
 	<div id="result">
 	</div>
-	<script>
-		function search() {
-			var q = document.querySelector('#tag').value;
-			console.log(q);
-			let r = new XMLHttpRequest();
-			r.open("GET",'https://qiitadon.com/api/v1/timelines/tag/'+q+'?local=true&limit=10000',false);
-			r.send(null);
-			console.log(r.responseText);
-			let json = JSON.parse(r.responseText);
-			json.forEach( (toot) => {
-				if (toot.application.name !== "Qithub-BOT") {
-					document.querySelector('#result').innerHTML 
-						+= "<div class='toot'><p>" + toot.account.username + "</p>"
-						+ "<p>" + toot.content + "</p></div>";
-				}
-			});
-		}
-		function isTagContain(tags, tagName) {
-		}
-	</script>
-	<style>
-		body {
-			background-color: #223;
-		}
-		.toot {
-			border-width: 15px;
-			background-color: #fff;
-		}
-		.form {
-			border-width: 15px;
-			background-color: #fff;
-		}
-	</style>
+	<div>
+		<span class="next" onclick="search()">next</span>
+	</div>
 </body>
 </html>

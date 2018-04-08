@@ -1,0 +1,14 @@
+body {
+	background-color: #223;
+}
+.toot {
+	border-width: 15px;
+	background-color: #fff;
+}
+.form {
+	border-width: 15px;
+	background-color: #fff;
+}
+.next {
+	color: #fff;
+}
