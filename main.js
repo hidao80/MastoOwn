@@ -13,6 +13,7 @@ function search() {
     		}
     	});        
     }
+    document.getElementById('id_next').disabled = false;
 }
 
 function getEntries() {
