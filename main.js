@@ -1,20 +1,27 @@
 var minId = -1;
 
 function search() {
-	let json = JSON.parse(getEntries());
-	json.forEach( (toot) => {
-		if (toot.application.name !== "Qithub-BOT") {
-			document.querySelector('#result').innerHTML 
-				+= "<div class='toot'><p>" + toot.account.username + "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;toot id:" + toot.id + "</span></p>"
-				+ "<p>" + toot.content + "</p><p>" + getImages(toot) + "</p></div>";
-			minId = toot.id;
-		}
-	});
+    let entries = getEntries();
+    if(entries){
+    	let json = JSON.parse(entities);
+    	json.forEach( (toot) => {
+    		if (toot.application.name !== "Qithub-BOT") {
+    			document.querySelector('#result').innerHTML 
+    				+= "<div class='toot'><p>" + toot.account.username + "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;toot id:" + toot.id + "</span></p>"
+    				+ "<p>" + toot.content + "</p><p>" + getImages(toot) + "</p></div>";
+    			minId = toot.id;
+    		}
+    	});        
+    }
 }
 
 function getEntries() {
 	let q = document.querySelector('#tag').value;
 	let instance = document.querySelector('#instance').value;
+	
+	if(!q){ pop_error('Tag is empty.'); return false;}
+	if(!instance){pop_error('Instance is empty.'); return false;}
+	
 	let strMaxId = "";
 	if (minId >= 0) strMaxId = "&max_id="+minId;
 	let r = new XMLHttpRequest();
@@ -41,4 +48,9 @@ function getImages(toot) {
 	});
 	
 	return retValue;
+}
+
+function pop_error(msg){
+    console.log(msg);
+    alert(msg);
 }
