@@ -7,7 +7,7 @@ function search() {
     	json.forEach( (toot) => {
     		if (toot.application.name !== "Qithub-BOT") {
     			document.querySelector('#result').innerHTML 
-    				+= "<div class='toot'><p>" + toot.account.username + "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;toot id:" + toot.id + "</span></p>"
+    				+= "<div class='toot'><p><span>" + toot.account.username + "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;toot id:" + toot.id + "</span></p>"
     				+ "<p>" + toot.content + "</p><p>" + getImages(toot) + "</p></div>";
     			minId = toot.id;
     		}
