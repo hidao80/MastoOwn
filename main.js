@@ -3,7 +3,7 @@ var minId = -1;
 function search() {
     let entries = getEntries();
     if(entries){
-    	let json = JSON.parse(entities);
+    	let json = JSON.parse(entries);
     	json.forEach( (toot) => {
     		if (toot.application.name !== "Qithub-BOT") {
     			document.querySelector('#result').innerHTML 
