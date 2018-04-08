@@ -6,9 +6,7 @@ function search() {
     	let json = JSON.parse(entries);
     	json.forEach( (toot) => {
     		if (toot.application.name !== "Qithub-BOT") {
-    			document.querySelector('#result').innerHTML 
-    				+= "<div class='toot'><p><span>" + toot.account.username + "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;toot id:" + toot.id + "</span></p>"
-    				+ "<p>" + toot.content + "</p><p>" + getImages(toot) + "</p></div>";
+        		showEntries(toot)
     			minId = toot.id;
     		}
     	});        
@@ -54,4 +52,16 @@ function getImages(toot) {
 function pop_error(msg){
     console.log(msg);
     alert(msg);
+}
+
+function showEntries(toot){
+	document.querySelector('#result').innerHTML 
+		+= "<div class='toot'>"
+		+ "<p><span>"
+		+ toot.account.username 
+		+ "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;toot id:" 
+		+ toot.id + "</span></p>"
+		+ "<p>" + toot.content + "</p>"
+		+ "<p>" + getImages(toot) + "</p>"
+		+ "</div>";
 }
