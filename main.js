@@ -5,7 +5,7 @@ function search() {
     if(entries){
     	let json = JSON.parse(entries);
     	json.forEach( (toot) => {
-    		if (toot.application.name !== "Qithub-BOT") {
+    		if (toot.application != null && toot.application.name !== "Qithub-BOT") {
         		showEntries(toot)
     			minId = toot.id;
     		}
