@@ -1,39 +1,62 @@
 var minId = -1;
 var globalJson = [];
+var progress = [".oOo.","o.oOo","Oo.oO","oOo.o"];
+var counter = 0;
 
-function search() {
+function search(isAll) {
     let entries;
     let username = document.querySelector("#username").value.trim();
-	if(!username){ pop_error('User name is empty.'); return;}
+	let instance = document.querySelector('#instance').value;
+	let token = document.querySelector('#token').value;
+	if(!username){pop_error('User name is empty.'); return;}
+	if(!instance){pop_error('Instance is empty.'); return false;}
+	if(!token){pop_error('Token is empty.'); return false;}
 
-	entries = getEntries(username);
+	let uid = getUid(instance, token);
+	console.log(instance, uid);
 
-	if(entries){
-		let json = JSON.parse(entries);
-		let u;
-		let retry = true;
-		let preId = minId;
+	do {
+		entries = getEntries(instance, token, uid);
 
-		if (json.error) {pop_error(json.error); return false;}
-		json.forEach( (toot) => {
-			u = toot.account.username;
-			if ('@'+u == username || u == username) {
+		if (entries) {
+			document.querySelector('#progress').innerHTML = progress[counter % 4];
+			
+			let json = JSON.parse(entries);
+			let u;
+			let preId = minId;
+
+			if (json.error) {pop_error(json.error); return false;}
+			json.forEach( (toot) => {
 				showEntries(toot);
-				globalJson.push([toot.created_at, toot.content, toot.url, toot.media_attachments]);
-				retry = false;
+				globalJson.push({"created_at": toot.created_at, 
+									"content": toot.content,
+									"url":	toot.url,
+									"media_attachments": toot.media_attachments});
+				minId = toot.id;
+			});
+			
+			if (preId == minId) {
+				document.querySelector('#result').innerHTML +=
+					"<div class='toot'>EOF</div>";
+				break;
 			}
-			minId = toot.id;
-		});
-		
-		if (retry) {
-			document.querySelector('#result').innerHTML +=
-				"<div class='toot'>もう一度読み込んでください。</div>";
 		}
-		
-		if (preId == minId) {
-			document.querySelector('#result').innerHTML +=
-				"<div class='toot'>EOF</div>";
-		}
+	} while (entries && isAll);
+}
+
+function getUid(instance, token) {
+	let r = new XMLHttpRequest();
+	r.open("GET",instance+'/api/v1/accounts/verify_credentials',false);
+	r.setRequestHeader("Authorization", "Bearer " + token);
+	r.send(null);
+
+	console.log(r.responseText);
+
+	let json = JSON.parse(r.responseText);
+	if (json) {
+		return json.id;
+	} else {
+		return 0;
 	}
 }
 
@@ -42,18 +65,15 @@ function getJson() {
 	location.href = href;
 }
 
-function getEntries(username) {
-	let instance = document.querySelector('#instance').value;
-	let token = document.querySelector('#token').value;
-	if(!instance){pop_error('Instance is empty.'); return false;}
-	if(!token){pop_error('Token is empty.'); return false;}
-	
+function getEntries(instance, token, uid) {
 	let strMaxId = "";
 	if (minId >= 0) strMaxId = "&max_id="+minId;
+	
 	let r = new XMLHttpRequest();
-	r.open("GET",instance+'/api/v1/timelines/home/?local=true&limit=40'+strMaxId,false);
+	r.open("GET",instance+'/api/v1/accounts/'+uid+'/statuses?limit=40'+strMaxId,false);
 	r.setRequestHeader("Authorization", "Bearer " + token);
 	r.send(null);
+
 	console.log(r.responseText);
 
 	return r.responseText;

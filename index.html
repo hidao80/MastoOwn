@@ -8,14 +8,15 @@
 </head>
 <body onload="var minId = -1;">
 	<div id="form" class='form'>
-		<label for="instance">インスタンス</label><input type="text" id="instance" placeholder="https://qiitadon.com" value="https://qiitadon.com" autocomplete /><br>
+		<label for="instance">インスタンス</label><input type="text" id="instance" placeholder="https://qiitadon.com" value="https://qiitadon.com" autocomplete /><span id="progress"></span><br>
 		<label for="username">ユーザ名</label><input type="text" id="username" placeholder="@hidao" value="" autocomplete /><br>
 		<label for="token">トークン</label><input type="text" id="token" placeholder="Please input your token" autocomplete /><br>
 	</div>
 	<div id="result">
 	</div>
 	<div>
-		<button id="id_next" type="button" class="next" onclick="search()">次</button>
+		<button id="id_next" type="button" class="next" onclick="search(false)">次</button>
+		<button id="id_next" type="button" class="next" onclick="search(true)">一括取得</button>
 		<button id="get_json" type="button" class="get_json" onclick="getJson()">JSONでダウンロード</button>
 	</div>
 </body>
