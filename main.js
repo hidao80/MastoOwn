@@ -1,5 +1,5 @@
 var minId = -1;
-var globalJson = new Array(0);
+var globalJson = [];
 
 function search() {
     let entries;
@@ -10,15 +10,30 @@ function search() {
 
 	if(entries){
 		let json = JSON.parse(entries);
-		if (json) {
-			if (json.error) {pop_error(json.error); return false;}
-			json.forEach( (toot) => {
-				if ('@'+toot.account.username == username) {
-					showEntries(toot);
-					minId = toot.id;
-					globalJson.push(toot);
-				}
-			});        
+		let u;
+		let retry = true;
+		let preId = minId;
+		
+		if (json.error) {pop_error(json.error); return false;}
+		json.forEach( (toot) => {
+			u = toot.account.username;
+			if ('@'+u == username || u == username) {
+				showEntries(toot);
+				globalJson.push(toot);
+				retry = false;
+			}
+			minId = toot.id;
+			console.log(minId);
+		});
+		
+		if (retry) {
+			document.querySelector('#result').innerHTML +=
+				"<div class='toot'>もう一度読み込んでください。</div>";
+		}
+		
+		if (preId == minId) {
+			document.querySelector('#result').innerHTML +=
+				"<div class='toot'>EOF</div>";
 		}
 	}
 }
