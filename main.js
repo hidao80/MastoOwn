@@ -39,8 +39,8 @@ function search() {
 }
 
 function getJson() {
-	w = window.open("data:text/json," + encodeURIComponent(globalJson), "_blank");
-	w.focus();
+	var href = "data:application/octet-stream," + encodeURIComponent(JSON.stringify(globalJson));
+	location.href = href;
 }
 
 function getEntries(username) {
