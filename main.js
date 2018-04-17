@@ -13,17 +13,16 @@ function search() {
 		let u;
 		let retry = true;
 		let preId = minId;
-		
+
 		if (json.error) {pop_error(json.error); return false;}
 		json.forEach( (toot) => {
 			u = toot.account.username;
 			if ('@'+u == username || u == username) {
 				showEntries(toot);
-				globalJson.push(toot);
+				globalJson.push([toot.created_at, toot.content, toot.url, toot.media_attachments]);
 				retry = false;
 			}
 			minId = toot.id;
-			console.log(minId);
 		});
 		
 		if (retry) {
