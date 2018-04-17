@@ -24,8 +24,8 @@ function search() {
 }
 
 function getJson() {
-	let w = window.open("about:blank","_blank");
-	w.document.write = JSON.parse(globalJson);
+	w = window.open("data:text/json," + encodeURIComponent(globalJson), "_blank");
+	w.focus();
 }
 
 function getEntries(username) {
