@@ -10,16 +10,12 @@
 	<div id="form" class='form'>
 		<label for="instance">インスタンス</label><input type="text" id="instance" placeholder="https://qiitadon.com" value="https://qiitadon.com" autocomplete="on" /><br>
 		<label for="username">ユーザ名</label><input type="text" id="username" placeholder="@hidao" value="" autocomplete="on" /><br>
-		<label for="token">トークン</label><input type="text" id="token" placeholder="Please input your token"  autocomplete="on" /><br>
-		<input type="checkbox" id="toot" checked /><label for="toot">トゥートを取得</label>
-		<input type="checkbox" id="boost" /><label for="boost">ブーストを取得</label>
-		<input type="checkbox" id="favorite" /><label for="favorite">お気に入りを取得</label><br>
+		<label for="token">トークン</label><input type="text" id="token" placeholder="Please input your token" autocomplete="on" /><br>
 	</div>
 	<div id="result">
 	</div>
 	<div>
-		<button id="id_next" type="button" class="next" onclick="search(false)">次</button>
-		<button id="id_add" type="button" class="all" onclick="search(true)">一括</button>
+		<button id="id_next" type="button" class="next" onclick="search()">次</button>
 		<button id="get_json" type="button" class="get_json" onclick="getJson()">JSONで取得</button>
 	</div>
 </body>

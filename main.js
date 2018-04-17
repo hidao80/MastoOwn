@@ -1,30 +1,44 @@
 var minId = -1;
+var globalJson = new Array(0);
 
 function search() {
-    let entries = getEntries();
-    if(entries){
-    	let json = JSON.parse(entries);
-    	json.forEach( (toot) => {
-    		if (toot.application != null && toot.application.name !== "Qithub-BOT") {
-        		showEntries(toot)
-    			minId = toot.id;
-    		}
-    	});        
-    }
-    document.getElementById('id_next').disabled = false;
+    let entries;
+    let username = document.querySelector("#username").value.trim();
+	if(!username){ pop_error('User name is empty.'); return;}
+
+	entries = getEntries(username);
+
+	if(entries){
+		let json = JSON.parse(entries);
+		if (json) {
+			if (json.error) {pop_error(json.error); return false;}
+			json.forEach( (toot) => {
+				if ('@'+toot.account.username == username) {
+					showEntries(toot);
+					minId = toot.id;
+					globalJson.push(toot);
+				}
+			});        
+		}
+	}
 }
 
-function getEntries() {
-	let q = document.querySelector('#tag').value;
+function getJson() {
+	let w = window.open("about:blank","_blank");
+	w.document.write = JSON.parse(globalJson);
+}
+
+function getEntries(username) {
 	let instance = document.querySelector('#instance').value;
-	
-	if(!q){ pop_error('Tag is empty.'); return false;}
+	let token = document.querySelector('#token').value;
 	if(!instance){pop_error('Instance is empty.'); return false;}
+	if(!token){pop_error('Token is empty.'); return false;}
 	
 	let strMaxId = "";
 	if (minId >= 0) strMaxId = "&max_id="+minId;
 	let r = new XMLHttpRequest();
-	r.open("GET",instance+'/api/v1/timelines/tag/'+q+'?local=true&limit=40'+strMaxId,false);
+	r.open("GET",instance+'/api/v1/timelines/home/?local=true&limit=40'+strMaxId,false);
+	r.setRequestHeader("Authorization", "Bearer " + token);
 	r.send(null);
 	console.log(r.responseText);
 
