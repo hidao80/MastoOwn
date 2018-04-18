@@ -12,3 +12,6 @@ body {
 .next {
 	color: #000;
 }
+#progress {
+	visibility: hidden; /* visible */
+}
