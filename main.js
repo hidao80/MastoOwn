@@ -1,7 +1,5 @@
 var minId = -1;
 var globalJson = [];
-var progress = [".oOo.","o.oOo","Oo.oO","oOo.o"];
-var counter = 0;
 
 function search(isAll) {
     let entries;
@@ -13,19 +11,16 @@ function search(isAll) {
 	if(!token){pop_error('Token is empty.'); return false;}
 
 	let uid = getUid(instance, token);
-	console.log(instance, uid);
 
-	do {
+	document.querySelector('#progress').style.visibility = "visible";
+    do {
 		entries = getEntries(instance, token, uid);
 
-		if (entries) {
-			document.querySelector('#progress').innerHTML = progress[counter % 4];
-			
+		if (entries) {			
 			let json = JSON.parse(entries);
-			let u;
 			let preId = minId;
 
-			if (json.error) {pop_error(json.error); return false;}
+			if (json.error) {pop_error(json.error); clearTimeout(timerId); return;}
 			json.forEach( (toot) => {
 				showEntries(toot);
 				globalJson.push({"created_at": toot.created_at, 
@@ -34,14 +29,9 @@ function search(isAll) {
 									"media_attachments": toot.media_attachments});
 				minId = toot.id;
 			});
-			
-			if (preId == minId) {
-				document.querySelector('#result').innerHTML +=
-					"<div class='toot'>EOF</div>";
-				break;
-			}
 		}
 	} while (entries && isAll);
+	document.querySelector('#progress').style.visibility = "hidden";
 }
 
 function getUid(instance, token) {
@@ -68,6 +58,8 @@ function getJson() {
 function getEntries(instance, token, uid) {
 	let strMaxId = "";
 	if (minId >= 0) strMaxId = "&max_id="+minId;
+	
+	console.log(strMaxId);
 	
 	let r = new XMLHttpRequest();
 	r.open("GET",instance+'/api/v1/accounts/'+uid+'/statuses?limit=40'+strMaxId,false);
