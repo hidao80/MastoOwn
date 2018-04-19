@@ -2,8 +2,7 @@ var minId = -1;
 var globalJson = [];
 
 function search(isAll) {
-    let entries;
-    let username = document.querySelector("#username").value.trim();
+	let username = document.querySelector("#username").value.trim();
 	let instance = document.querySelector('#instance').value;
 	let token = document.querySelector('#token').value;
 	if(!username){pop_error('User name is empty.'); return;}
@@ -12,14 +11,22 @@ function search(isAll) {
 
 	let uid = getUid(instance, token);
 
-	document.querySelector('#progress').style.visibility = "visible";
+	setTimeout(getLoop(username,instance,token,uid,isAll),10000);
+	
+	document.querySelector('#progress').style.display = "block";
+}
+
+function getLoop(username,instance,token,uid,isAll) {
+    let entries;
+	let json;
+	let preId;
     do {
 		entries = getEntries(instance, token, uid);
 
-		if (entries) {			
-			let json = JSON.parse(entries);
-			let preId = minId;
+		json = JSON.parse(entries);
+		preId = minId;
 
+		if (Object.keys(json).length) {
 			if (json.error) {pop_error(json.error); clearTimeout(timerId); return;}
 			json.forEach( (toot) => {
 				showEntries(toot);
@@ -30,8 +37,8 @@ function search(isAll) {
 				minId = toot.id;
 			});
 		}
-	} while (entries && isAll);
-	document.querySelector('#progress').style.visibility = "hidden";
+	} while (Object.keys(json).length && isAll);
+	document.querySelector('#progress').style.display = "none";
 }
 
 function getUid(instance, token) {
