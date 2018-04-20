@@ -1,5 +1,6 @@
 var minId = -1;
 var globalJson = [];
+var finishAll = false;
 
 function search(isAll) {
 	let username = document.querySelector("#username").value.trim();
@@ -10,10 +11,8 @@ function search(isAll) {
 	if(!token){pop_error('Token is empty.'); return false;}
 
 	let uid = getUid(instance, token);
-    let entries;
-	let json;
 	
-	while ( Object.keys( JSON.parse(getEntries(instance, token, uid) ) ).length && isAll);
+	getEntries(instance, token, uid, isAll);
 }
 
 function getUid(instance, token) {
@@ -37,10 +36,15 @@ function getJson() {
 	location.href = href;
 }
 
-function getEntries(instance, token, uid) {
+function getEntries(instance, token, uid, isAll) {
+	var thisInstance = instance;
+	var thisToken = token;
+	var thisUid = uid;
+	var thisIsAll = isAll;
+
 	let strMaxId = "";
 	if (minId >= 0) strMaxId = "&max_id="+minId;
-	
+
 	let r = new XMLHttpRequest();
 	r.onprogress = (pe) => {
 		if(pe.lengthComputable) {
@@ -64,15 +68,16 @@ function getEntries(instance, token, uid) {
 									"url":	toot.url,
 									"media_attachments": toot.media_attachments});
 				showEntries(toot);
-				minId = toot.id;
 			});
+			minId = r.getResponseHeader("Link").match(/max_id=\d+/)[0].replace(/max_id=/,"");
+			if (thisIsAll) {
+				getEntries(thisInstance, thisToken, thisUid, thisIsAll);
+			}
 		}
 	};
-	r.open("GET",instance+'/api/v1/accounts/'+uid+'/statuses?limit=40'+strMaxId,false);
+	r.open("GET",instance+'/api/v1/accounts/'+uid+'/statuses?limit=40'+strMaxId,true);
 	r.setRequestHeader("Authorization", "Bearer " + token);
 	r.send(null);
-
-//	console.log(r.responseText);
 
 	return r.responseText;
 }
