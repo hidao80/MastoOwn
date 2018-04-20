@@ -1,14 +1,14 @@
+.boost {
+	border-width: 15px;
+	background-color: #fff;
+	display: block;
+}
 body {
 	background-color: #aea;
 }
 .toot {
 	border-width: 15px;
 	background-color: #fff;
-}
-.boost {
-	border-width: 15px;
-	background-color: #fff;
-	visibility: visible;
 }
 .form {
 	border-width: 15px;
