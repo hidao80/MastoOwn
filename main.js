@@ -67,8 +67,10 @@ function getEntries() {
 			if (/max_id=\d+/.test(link)) {
 				minId = link.match(/max_id=\d+/)[0].replace(/max_id=/,"");
 				prog.value += 40;
+				document.querySelector("#prog-num").innerHTML = Math.floor(prog.value / prog.max * 100) + "%";
 			} else {
 				clearInterval(timer);
+				document.querySelector("#prog-num").innerHTML = "100%";
 			}
 		}
 	};
