@@ -18,5 +18,5 @@ body {
 	color: #000;
 }
 #progress {
-	visibility: hidden; /* visible */
+	display: inline;
 }
