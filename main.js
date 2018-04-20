@@ -12,27 +12,8 @@ function search(isAll) {
 	let uid = getUid(instance, token);
     let entries;
 	let json;
-	let preId;
 	
-    do {
-		entries = getEntries(instance, token, uid);
-
-		json = JSON.parse(entries);
-		preId = minId;
-
-		if (Object.keys(json).length) {
-			if (json.error) {pop_error(json.error); clearTimeout(timerId); return;}
-			json.forEach( (toot) => {
-				showEntries(toot);
-				globalJson.push({"created_at": toot.created_at, 
-									"content": toot.content,
-									"url":	toot.url,
-									"media_attachments": toot.media_attachments});
-				minId = toot.id;
-				document.querySelector("#progress").value = 1 - minId / preId;
-			});
-		}
-	} while (Object.keys(json).length && isAll);
+	while ( Object.keys( JSON.parse(getEntries(instance, token, uid) ) ).length && isAll);
 }
 
 function getUid(instance, token) {
@@ -60,14 +41,38 @@ function getEntries(instance, token, uid) {
 	let strMaxId = "";
 	if (minId >= 0) strMaxId = "&max_id="+minId;
 	
-	console.log(strMaxId);
-	
 	let r = new XMLHttpRequest();
+	r.onprogress = (pe) => {
+		if(pe.lengthComputable) {
+			let pb = document.querySelector("#progress");
+
+			pb.max = pe.total
+			pb.value = pe.loaded
+		}
+	};
+	r.onload = () => {
+		let json = JSON.parse( r.responseText );
+
+		if (Object.keys(json).length) {
+			if (json.error) {
+				pop_error(json.error);
+				return;
+			}
+			json.forEach( (toot) => {
+				globalJson.push({"created_at": toot.created_at, 
+									"content": toot.content,
+									"url":	toot.url,
+									"media_attachments": toot.media_attachments});
+				showEntries(toot);
+				minId = toot.id;
+			});
+		}
+	};
 	r.open("GET",instance+'/api/v1/accounts/'+uid+'/statuses?limit=40'+strMaxId,false);
 	r.setRequestHeader("Authorization", "Bearer " + token);
 	r.send(null);
 
-	console.log(r.responseText);
+//	console.log(r.responseText);
 
 	return r.responseText;
 }
@@ -125,4 +130,10 @@ function hiddenBoost() {
 			elem.style.display = "block";
 		});
 	}
+}
+
+function drawEntries() {
+	globalJson.forEach((toot) => {
+		showEntries(toot);
+	});
 }
