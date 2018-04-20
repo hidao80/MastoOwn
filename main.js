@@ -10,16 +10,10 @@ function search(isAll) {
 	if(!token){pop_error('Token is empty.'); return false;}
 
 	let uid = getUid(instance, token);
-
-	setTimeout(getLoop(username,instance,token,uid,isAll),10000);
-	
-	document.querySelector('#progress').style.display = "block";
-}
-
-function getLoop(username,instance,token,uid,isAll) {
     let entries;
 	let json;
 	let preId;
+	
     do {
 		entries = getEntries(instance, token, uid);
 
@@ -35,10 +29,10 @@ function getLoop(username,instance,token,uid,isAll) {
 									"url":	toot.url,
 									"media_attachments": toot.media_attachments});
 				minId = toot.id;
+				document.querySelector("#progress").value = 1 - minId / preId;
 			});
 		}
 	} while (Object.keys(json).length && isAll);
-	document.querySelector('#progress').style.display = "none";
 }
 
 function getUid(instance, token) {
