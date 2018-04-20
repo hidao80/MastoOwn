@@ -1,34 +1,22 @@
 var minId = -1;
 var globalJson = [];
+var timer = null;
 
-function search(isAll) {
-	let username = document.querySelector("#username").value.trim();
-	let instance = document.querySelector('#instance').value;
-	let token = document.querySelector('#token').value;
-	if(!username){pop_error('User name is empty.'); return;}
-	if(!instance){pop_error('Instance is empty.'); return false;}
-	if(!token){pop_error('Token is empty.'); return false;}
-
-	let uid = getUid(instance, token);
-    let entries;
-	let json;
-	
-	while ( Object.keys( JSON.parse(getEntries(instance, token, uid) ) ).length && isAll);
+function search() {
+	timer = setInterval(getEntries, 2000);
 }
 
-function getUid(instance, token) {
+function getStatus(instance, token) {
 	let r = new XMLHttpRequest();
 	r.open("GET",instance+'/api/v1/accounts/verify_credentials',false);
 	r.setRequestHeader("Authorization", "Bearer " + token);
 	r.send(null);
 
-	console.log(r.responseText);
-
 	let json = JSON.parse(r.responseText);
 	if (json) {
-		return json.id;
+		return json;
 	} else {
-		return 0;
+		return null;
 	}
 }
 
@@ -37,17 +25,26 @@ function getJson() {
 	location.href = href;
 }
 
-function getEntries(instance, token, uid) {
+function getEntries() {
+	let username = document.querySelector("#username").value.trim();
+	let instance = document.querySelector('#instance').value.trim();
+	let token = document.querySelector('#token').value.trim();
+
+	if(!username){pop_error('User name is empty.'); return;}
+	if(!instance){pop_error('Instance is empty.'); return false;}
+	if(!token){pop_error('Token is empty.'); return false;}
+
+	let status = getStatus(instance, token);
+	let prog = document.querySelector("#progress")
+	
+	prog.max = status.statuses_count;
+
 	let strMaxId = "";
 	if (minId >= 0) strMaxId = "&max_id="+minId;
-	
+
 	let r = new XMLHttpRequest();
 	r.onprogress = (pe) => {
 		if(pe.lengthComputable) {
-			let pb = document.querySelector("#progress");
-
-			pb.max = pe.total
-			pb.value = pe.loaded
 		}
 	};
 	r.onload = () => {
@@ -64,17 +61,20 @@ function getEntries(instance, token, uid) {
 									"url":	toot.url,
 									"media_attachments": toot.media_attachments});
 				showEntries(toot);
-				minId = toot.id;
 			});
+
+			let link = r.getResponseHeader("Link");
+			if (/max_id=\d+/.test(link)) {
+				minId = link.match(/max_id=\d+/)[0].replace(/max_id=/,"");
+				prog.value += 40;
+			} else {
+				clearInterval(timer);
+			}
 		}
 	};
-	r.open("GET",instance+'/api/v1/accounts/'+uid+'/statuses?limit=40'+strMaxId,false);
+	r.open("GET",instance+'/api/v1/accounts/'+status.id+'/statuses?limit=40'+strMaxId,true);
 	r.setRequestHeader("Authorization", "Bearer " + token);
 	r.send(null);
-
-//	console.log(r.responseText);
-
-	return r.responseText;
 }
 
 function getImages(toot) {
@@ -130,10 +130,4 @@ function hiddenBoost() {
 			elem.style.display = "block";
 		});
 	}
-}
-
-function drawEntries() {
-	globalJson.forEach((toot) => {
-		showEntries(toot);
-	});
 }
