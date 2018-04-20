@@ -102,8 +102,14 @@ function pop_error(msg){
 }
 
 function showEntries(toot){
+	let cls = "toot";
+	if (/^<p>RT\s</.test(toot.content)) {
+		cls = "boost"; 
+	} else {
+		cls = "toot"; 
+	}
 	document.querySelector('#result').innerHTML 
-		+= "<div class='toot'>"
+		+= "<div class='" + cls + "'>"
 		+ "<p><span>"
 		+ toot.account.username 
 		+ "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;toot id:" 
@@ -111,4 +117,18 @@ function showEntries(toot){
 		+ "<p>" + toot.content + "</p>"
 		+ "<p>" + getImages(toot) + "</p>"
 		+ "</div>";
+}
+
+function hiddenBoost() {
+	let list = document.querySelectorAll(".boost");
+
+	if (document.querySelector("#hidden-boost").checked) {
+		list.forEach((elem) => {
+			elem.style.display = "none";
+		});
+	} else {
+		list.forEach((elem) => {
+			elem.style.display = "block";
+		});
+	}
 }

@@ -5,6 +5,11 @@ body {
 	border-width: 15px;
 	background-color: #fff;
 }
+.boost {
+	border-width: 15px;
+	background-color: #fff;
+	visibility: visible;
+}
 .form {
 	border-width: 15px;
 	background-color: #fff;
