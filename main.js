@@ -121,15 +121,9 @@ function showEntries(toot){
 }
 
 function hiddenBoost() {
-	let list = document.querySelectorAll(".boost");
-
 	if (document.querySelector("#hidden-boost").checked) {
-		list.forEach((elem) => {
-			elem.style.display = "none";
-		});
+		document.styleSheets[0].cssRules[0].style.display = "none";
 	} else {
-		list.forEach((elem) => {
-			elem.style.display = "block";
-		});
+		document.styleSheets[0].cssRules[0].style.display = "block";
 	}
 }
