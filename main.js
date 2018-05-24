@@ -51,14 +51,19 @@ function getEntries() {
 	};
 	r.onload = () => {
 		let json = JSON.parse( r.responseText );
+		let periodOver = false;
 
 		if (Object.keys(json).length) {
 			if (json.error) {
 				pop_error(json.error);
 				return;
 			}
-			json.forEach( (toot) => {
-				let day = toot.created_at.replace(/[A-Z]+$/,"");
+			json.some( periodOver = (toot) => {
+				let day = toot.created_at.replace(/[A-Z].+$/,"");
+				console.log(day + " " + periodArray[0] + " " + periodArray[1]);
+				if (period != null && day < periodArray[0]) {
+					return true;
+				}
 				if (period != null && periodArray[0] <= day && day <= periodArray[1]) {
 					globalJson.push({"created_at": toot.created_at, 
 									"content": toot.content,
@@ -69,7 +74,12 @@ function getEntries() {
 			});
 
 			let link = r.getResponseHeader("Link");
-			if (/max_id=\d+/.test(link)) {
+			if (periodOver) {
+				clearInterval(timer);
+				prog.max = 1;
+				prog.value = 1;
+				$("#prog-num").innerHTML = "100%";
+			} else if (/max_id=\d+/.test(link)) {
 				minId = link.match(/max_id=\d+/)[0].replace(/max_id=/,"");
 				prog.value += 40;
 				$("#prog-num").innerHTML = Math.floor(prog.value / prog.max * 100) + "%";
