@@ -6,18 +6,17 @@ function search() {
 	timer = setInterval(getEntries, 2000);
 }
 
+function $(id) {
+	return document.querySelector(id);
+}
+
 function getStatus(instance, token) {
 	let r = new XMLHttpRequest();
 	r.open("GET",instance+'/api/v1/accounts/verify_credentials',false);
 	r.setRequestHeader("Authorization", "Bearer " + token);
 	r.send(null);
 
-	let json = JSON.parse(r.responseText);
-	if (json) {
-		return json;
-	} else {
-		return null;
-	}
+	return JSON.parse(r.responseText);
 }
 
 function getJson() {
@@ -26,16 +25,16 @@ function getJson() {
 }
 
 function getEntries() {
-	let username = document.querySelector("#username").value.trim();
-	let instance = document.querySelector('#instance').value.trim();
-	let token = document.querySelector('#token').value.trim();
+	let username = $("#username").value.trim();
+	let instance = $('#instance').value.trim();
+	let token = $('#token').value.trim();
 
 	if(!username){pop_error('User name is empty.'); return;}
 	if(!instance){pop_error('Instance is empty.'); return false;}
 	if(!token){pop_error('Token is empty.'); return false;}
 
 	let status = getStatus(instance, token);
-	let prog = document.querySelector("#progress")
+	let prog = $("#progress");
 	
 	prog.max = status.statuses_count;
 
@@ -67,10 +66,10 @@ function getEntries() {
 			if (/max_id=\d+/.test(link)) {
 				minId = link.match(/max_id=\d+/)[0].replace(/max_id=/,"");
 				prog.value += 40;
-				document.querySelector("#prog-num").innerHTML = Math.floor(prog.value / prog.max * 100) + "%";
+				$("#prog-num").innerHTML = Math.floor(prog.value / prog.max * 100) + "%";
 			} else {
 				clearInterval(timer);
-				document.querySelector("#prog-num").innerHTML = "100%";
+				$("#prog-num").innerHTML = "100%";
 			}
 		}
 	};
@@ -109,7 +108,7 @@ function showEntries(toot){
 	} else {
 		cls = "toot"; 
 	}
-	document.querySelector('#result').innerHTML 
+	$('#result').innerHTML 
 		+= "<div class='" + cls + "'>"
 		+ "<p><span>"
 		+ toot.account.username 
@@ -121,7 +120,7 @@ function showEntries(toot){
 }
 
 function hiddenBoost() {
-	if (document.querySelector("#hidden-boost").checked) {
+	if ($("#hidden-boost").checked) {
 		document.styleSheets[0].cssRules[0].style.display = "none";
 	} else {
 		document.styleSheets[0].cssRules[0].style.display = "block";
@@ -129,17 +128,15 @@ function hiddenBoost() {
 }
 
 function saveForms() {
-	let d = document;
 	let s = localStorage;
-	s.setItem('instance', d.querySelector('#instance').value);
-	s.setItem('username', d.querySelector('#username').value);
-	s.setItem('token', d.querySelector('#token').value);
+	s.setItem('instance', $('#instance').value.trim());
+	s.setItem('username', $('#username').value.trim());
+	s.setItem('token', $('#token').value.trim());
 }
 
 function loadForms() {
-	let d = document;
 	let s = localStorage;
-	d.querySelector('#instance').value = s.getItem('instance');
-	d.querySelector('#username').value = s.getItem('username');
-	d.querySelector('#token').value = s.getItem('token');
+	$('#instance').value = s.getItem('instance');
+	$('#username').value = s.getItem('username');
+	$('#token').value = s.getItem('token');
 }
