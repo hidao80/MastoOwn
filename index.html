@@ -9,8 +9,10 @@
 <body>
 	<div id="form" class='form'>
 		<label for="instance">インスタンス</label><input type="text" id="instance"  placeholder="https://qiitadon.com" value="https://qiitadon.com" /><progress id="progress" max=1 value=0></progress><span id="prog-num">0%</span><br>
-		<label for="username">ユーザ名</label><input type="text" id="username"  placeholder="@hidao" value="" /><br>
-		<label for="token">トークン</label><input type="text" id="token" placeholder="Please input your token" /><a href="https://github.com/hidao80/MastoOwn/blob/master/README.md#%E3%82%A2%E3%83%97%E3%83%AA%E3%82%B1%E3%83%BC%E3%82%B7%E3%83%A7%E3%83%B3%E3%83%88%E3%83%BC%E3%82%AF%E3%83%B3%E3%81%AE%E5%8F%96%E5%BE%97%E6%96%B9%E6%B3%95">トークンの取得方法</a><input type="checkbox" id="hidden-boost" onchange="hiddenBoost()"><label for="hidden-boost">ブーストを隠す</label>
+		<label for="username">ユーザ名</label><input type="text" id="username"  placeholder="@hidao" value="" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+		<label for="token">トークン</label><input type="text" id="token" placeholder="Please input your token" /><br>
+		<label for="period">取得する期間</label><input type="text" id="period" placeholder="2018-01-01 2018-03-31" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+		<a href="https://github.com/hidao80/MastoOwn/blob/master/README.md#%E3%82%A2%E3%83%97%E3%83%AA%E3%82%B1%E3%83%BC%E3%82%B7%E3%83%A7%E3%83%B3%E3%83%88%E3%83%BC%E3%82%AF%E3%83%B3%E3%81%AE%E5%8F%96%E5%BE%97%E6%96%B9%E6%B3%95">トークンの取得方法</a><input type="checkbox" id="hidden-boost" onchange="hiddenBoost()"><label for="hidden-boost">ブーストを隠す</label>
 		<input type="button" onclick="saveForms()" value="フォームの内容を保存">
 	</div>
 	<div id="result">
