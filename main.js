@@ -28,10 +28,13 @@ function getEntries() {
 	let username = $("#username").value.trim();
 	let instance = $('#instance').value.trim();
 	let token = $('#token').value.trim();
+	let period = $('#period').value.trim();
 
 	if(!username){pop_error('User name is empty.'); return;}
 	if(!instance){pop_error('Instance is empty.'); return false;}
 	if(!token){pop_error('Token is empty.'); return false;}
+
+	let periodArray = period.replace(/^(?!.*(\d+|-+)).*$/, "").replace(/\s+/," ").split(" ")
 
 	let status = getStatus(instance, token);
 	let prog = $("#progress");
@@ -55,11 +58,14 @@ function getEntries() {
 				return;
 			}
 			json.forEach( (toot) => {
-				globalJson.push({"created_at": toot.created_at, 
+				let day = toot.created_at.replace(/[A-Z]+$/,"");
+				if (period != null && periodArray[0] <= day && day <= periodArray[1]) {
+					globalJson.push({"created_at": toot.created_at, 
 									"content": toot.content,
 									"url":	toot.url,
 									"media_attachments": toot.media_attachments});
-				showEntries(toot);
+					showEntries(toot);
+				}
 			});
 
 			let link = r.getResponseHeader("Link");
@@ -112,8 +118,8 @@ function showEntries(toot){
 		+= "<div class='" + cls + "'>"
 		+ "<p><span>"
 		+ toot.account.username 
-		+ "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;toot id:" 
-		+ toot.id + "</span></p>"
+		+ "&nbsp;&nbsp;&nbsp;toot id:" 
+		+ toot.id + "&nbsp;&nbsp;&nbsp;created_at:" + toot.created_at + "</span></p>"
 		+ "<p>" + toot.content + "</p>"
 		+ "<p>" + getImages(toot) + "</p>"
 		+ "</div>";
@@ -132,6 +138,7 @@ function saveForms() {
 	s.setItem('instance', $('#instance').value.trim());
 	s.setItem('username', $('#username').value.trim());
 	s.setItem('token', $('#token').value.trim());
+	s.setItem('period', $('#period').value.trim());
 }
 
 function loadForms() {
@@ -139,4 +146,5 @@ function loadForms() {
 	$('#instance').value = s.getItem('instance');
 	$('#username').value = s.getItem('username');
 	$('#token').value = s.getItem('token');
+	$('#period').value = s.getItem('period');
 }
