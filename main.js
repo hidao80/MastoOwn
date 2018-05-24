@@ -127,3 +127,19 @@ function hiddenBoost() {
 		document.styleSheets[0].cssRules[0].style.display = "block";
 	}
 }
+
+function saveForms() {
+	let d = document;
+	let s = localStorage;
+	s.setItem('instance', d.querySelector('#instance').value);
+	s.setItem('username', d.querySelector('#username').value);
+	s.setItem('token', d.querySelector('#token').value);
+}
+
+function loadForms() {
+	let d = document;
+	let s = localStorage;
+	d.querySelector('#instance').value = s.getItem('instance');
+	d.querySelector('#username').value = s.getItem('username');
+	d.querySelector('#token').value = s.getItem('token');
+}
