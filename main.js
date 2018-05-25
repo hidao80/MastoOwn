@@ -16,7 +16,12 @@ function getStatus(instance, token) {
 	r.setRequestHeader("Authorization", "Bearer " + token);
 	r.send(null);
 
-	return JSON.parse(r.responseText);
+	let json = JSON.parse(r.responseText);
+	if (json) {
+		return json;
+	} else {
+		return null;
+	}
 }
 
 function getJson() {
@@ -35,58 +40,57 @@ function getEntries() {
 	if(!token){pop_error('Token is empty.'); return false;}
 
 	let periodArray = period.replace(/^(?!.*(\d+|-+)).*$/, "").replace(/\s+/," ").split(" ")
-
+	if (periodArray.length == 0) {
+		periodArray = ["0000-01-01","9999-12-31"];
+	} else if (periodArray.length < 2) {
+		periodArray.push("9999-12-31");
+	}
+	
 	let status = getStatus(instance, token);
 	let prog = $("#progress");
-	
+
 	prog.max = status.statuses_count;
 
 	let strMaxId = "";
 	if (minId >= 0) strMaxId = "&max_id="+minId;
 
 	let r = new XMLHttpRequest();
-	r.onprogress = (pe) => {
-		if(pe.lengthComputable) {
-		}
-	};
 	r.onload = () => {
 		let json = JSON.parse( r.responseText );
-		let periodOver = false;
 
 		if (Object.keys(json).length) {
 			if (json.error) {
 				pop_error(json.error);
 				return;
 			}
-			json.some( periodOver = (toot) => {
+			json.forEach( (toot) => {
 				let day = toot.created_at.replace(/[A-Z].+$/,"");
-				console.log(day + " " + periodArray[0] + " " + periodArray[1]);
-				if (period != null && day < periodArray[0]) {
-					return true;
-				}
-				if (period != null && periodArray[0] <= day && day <= periodArray[1]) {
+
+				if (periodArray[0] <= day && day <= periodArray[1]) {
 					globalJson.push({"created_at": toot.created_at, 
 									"content": toot.content,
 									"url":	toot.url,
 									"media_attachments": toot.media_attachments});
 					showEntries(toot);
 				}
+console.log(prog.value +"/"+ prog.max);
+				let link = r.getResponseHeader("Link");
+				if (/max_id=\d+/.test(link)) {
+					minId = link.match(/max_id=\d+/)[0].replace(/max_id=/,"");
+					prog.value += 1;
+					$("#prog-num").innerHTML = Math.floor(prog.value / prog.max * 100) + "%";
+				} else {
+					clearInterval(timer);
+					$("#prog-num").innerHTML = "100%";
+				}
+				if (day < periodArray[0]) {
+					console.log(day + ", " + periodArray[0]);
+					clearInterval(timer);
+					prog.value = prog.max;
+					$("#prog-num").innerHTML = "100%";
+					return;
+				}
 			});
-
-			let link = r.getResponseHeader("Link");
-			if (periodOver) {
-				clearInterval(timer);
-				prog.max = 1;
-				prog.value = 1;
-				$("#prog-num").innerHTML = "100%";
-			} else if (/max_id=\d+/.test(link)) {
-				minId = link.match(/max_id=\d+/)[0].replace(/max_id=/,"");
-				prog.value += 40;
-				$("#prog-num").innerHTML = Math.floor(prog.value / prog.max * 100) + "%";
-			} else {
-				clearInterval(timer);
-				$("#prog-num").innerHTML = "100%";
-			}
 		}
 	};
 	r.open("GET",instance+'/api/v1/accounts/'+status.id+'/statuses?limit=40'+strMaxId,true);
