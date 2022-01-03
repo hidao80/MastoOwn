@@ -1,22 +1,20 @@
 .boost {
-	border-width: 15px;
+	border: 2px solid #009af4;
+    border-radius: 4px;
 	background-color: #fff;
-	display: block;
-}
-body {
-	background-color: #aea;
+    margin: 15px;
+    padding: 15px;
 }
 .toot {
-	border-width: 15px;
+	border: 2px solid #52b03b;;
+    border-radius: 4px;
 	background-color: #fff;
-}
-.form {
-	border-width: 15px;
-	background-color: #fff;
-}
-.next {
-	color: #000;
+    margin: 15px;
+    padding: 15px;
 }
 #progress {
 	display: inline;
+}
+.time {
+    background-color: #fff;
 }
