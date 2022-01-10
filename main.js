@@ -1,32 +1,28 @@
-var minId = -1;
-var globalJson = [];
-var timer = null;
-var process_time = "";
+const global = {
+    minId: -1,
+    json: [],
+    process_time: "",
+    isContinue: true,
+    json_index: 0,
+}
 
 /**
  * 検索開始ボタンアクション
  * @returns void
  */
-function search() {
+async function search() {
     // 今までの出力結果を全削除
     clearToots();
 
     // 入力チェック
     let instance = _$('#instance').value.trim();
-    let username = _$('#username').value.trim();
     let token = _$('#token').value.trim();
-    let period = _$('#period').value.trim();
 
     instance = instance.indexOf('/', 8) == -1 ? instance : instance.substring(0, instance.indexOf('/', 8));
-    console.log(instance.substring(0, instance.indexOf('/', 8)));
     _$('#instance').value = instance;
 
     if (!instance) {
         pop_error('Instance is empty.');
-        return false;
-    }
-    if (!username) {
-        pop_error('Username is empty.');
         return false;
     }
     if (!token) {
@@ -34,12 +30,9 @@ function search() {
         return false;
     }
 
-    let periodArray = period.replace(/^(?!.*(\d+|-+)).*$/, "").replace(/\s+/, " ").split(" ")
-    if (periodArray.length == 0) {
-        periodArray = ["0000-01-01", "9999-12-31"];
-    } else if (periodArray.length < 2) {
-        periodArray.push("9999-12-31");
-    }
+    const periodArray = getPeriodArray();
+    const save_point = localStorage.getItem(token + periodArray[0] + periodArray[1]);
+    global.minId = save_point ? save_point : -1;
 
     // フォームに入力されている内容をlocalStorageに保存する
     saveForms();
@@ -47,20 +40,56 @@ function search() {
     /*
      * toot取り出しのための初期設定
      */
-    process_time = getFormattedTime()
-    _$("#process_time").innerText = process_time;
+    global.process_time = getFormattedTime()
+    _$("#process_time").innerText = global.process_time + " 〜 ";
 
     const status = getStatus(instance, token);
-    // console.log(status);
     _$("#progress").max = status.statuses_count;
 
-    $("#spinner").toggleClass("d-none");
+    $("#spinner").removeClass("d-none");
 
     // Mastodon APIは5分間に300回まで呼び出せる
     // 5 * 60 = 300 なので、1秒ごとに1回のペースで呼び出せば呼び出し上限にはかからないはず
-    // 念のため 1.2病に1回API呼び出しを行う
-    timer = setInterval(getEntries, 1200, instance, token, periodArray[0], periodArray[1], status);
+    // 念のため 1.1秒に1回API呼び出しを行う
+    // getEntries()に含まれる最後のtootから次のtootを取得するため、httpリクエストの帰りを待つ
+    // もっと生かした仕組みができそうな気がするけど、実力が足りない
+    do {
+        await sleep(1500);
+        getEntries(instance, token, periodArray[0], periodArray[1], status);
+    } while (global.isContinue);
 }
+
+/**
+ * 一時的に実行を止める
+ * @param {int} ms ミリ秒
+ * @returns {Promise}
+ */
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+/**
+ * tootの取得期間を取得する
+ * @returns {Array} 期間の配列 [start, end]
+ */
+function getPeriodArray() {
+    let periodArray = _$('#period').value.trim().replace(/^(?!.*(\d+|-+)).*$/, "").replace(/\s+/, " ").split(" ");
+    if (periodArray.length == 0) {
+        periodArray = ["0000-01-01", "9999-12-31"];
+    } else if (periodArray.length < 2) {
+        periodArray.push("9999-12-31");
+    }
+
+    // 日付を照準に入れ替え
+    if (periodArray[0] > periodArray[1]) {
+        const temp = periodArray[0];
+        periodArray[0] = periodArray[1];
+        periodArray[1] = temp;
+    }
+
+    return periodArray;
+}
+
 
 /**
  * HTML要素の取り出しショートカット
@@ -74,7 +103,7 @@ function _$(id) {
 /**
  * status(=toot)を取り出す
  * @param {*} instance https://qiitadon.com など、インスタンスのURL
- * @param {*} token アクセストークン
+ * @param {*} token アプリケーショントークン
  * @returns toot内容のJSON
  */
 function getStatus(instance, token) {
@@ -95,12 +124,29 @@ function getStatus(instance, token) {
  * 画面に表示しているtootをJSON形式ファイルでダウンロードする
  */
  function getJson() {
+    // 現在取得している最後のtootのIDを取得し、セーブしておく
+    const period = getPeriodArray();
+    localStorage.setItem(localStorage.getItem('token') + period[0] + period[1], global.minId);
+
     // アンカータグの作成
     const downLoadLink = document.createElement("a");
 
     // ダウンロードするHTML文章の生成
-    const outputDataString = JSON.stringify(globalJson);
-    const downloadFileName = _$("#username").value + " toots (" + _$("#period").value + ").json";
+    // concat() で重複を削除している（必要ないかも）
+    let json = [];
+    let first_obj;
+    let last_obj;
+    for (last_obj of global.json) {
+        if (!first_obj) {
+            first_obj = last_obj;
+        }
+        json = json.concat(last_obj);
+    }
+
+    // first_obj のほうが最近に近いので、それを後ろにする
+    const time = last_obj.created_at.replace(/T.*/, '') + " - " + first_obj.created_at.replace(/T.*/, '');
+    const outputDataString = JSON.stringify(json);
+    const downloadFileName = localStorage.getItem('instance').replace(/https?:\/\//, '') + " toots (" + time + ").json";
     const filetype = "application/json";
     downLoadLink.download = downloadFileName;
     downLoadLink.href = URL.createObjectURL(new Blob([outputDataString], { type: filetype }));
@@ -112,12 +158,16 @@ function getStatus(instance, token) {
  * 画面に表示しているtootをHTML形式ファイルでダウンロードする
  */
  function getHTML() {
+    // 現在取得している最後のtootのIDを取得し、セーブしておく
+    const period = getPeriodArray();
+    localStorage.setItem(localStorage.getItem('token') + period[0] + period[1], global.minId);
+
     // アンカータグの作成
     const downLoadLink = document.createElement("a");
 
     // ダウンロードするHTML文章の生成
     const outputDataString = "<html><head><meta charset='utf-8'><style>.boost{border:2px solid #009af4;border-radius:4px;background-color:#fff;margin:15px;padding:15px}.toot{border:2px solid #52b03b;border-radius:4px;background-color:#fff;margin:15px;padding:15px}#progress{display:inline}.time{background-color:#fff}</style></head><body>" + _$("#result").innerHTML + "</body></html>";
-    const downloadFileName = _$("#username").value + " toots (" + _$("#period").value + ").html";
+    const downloadFileName = localStorage.getItem('instance').replace(/https?:\/\//, '') + " toots (" + _$("#period").value + ").html";
     const filetype = "application/json";
     downLoadLink.download = downloadFileName;
     downLoadLink.href = URL.createObjectURL(new Blob([outputDataString], { type: filetype }));
@@ -128,19 +178,18 @@ function getStatus(instance, token) {
 /**
  * tootを取り出して、HTMLに表示する。setTImeoutで1.2秒ごとに呼び出される
  * @param {*} instance https://qiitadon.com など、インスタンスのURL
- * @param {*} token アクセストークン
+ * @param {*} token アプリケーショントークン
  * @param {*} period_start '2021-01-01' など、取得する期間の開始日
  * @param {*} period_end '2021-12-31' など、取得する期間の終了日
  * @param {*} status APIで取得したユーザー情報
  */
 function getEntries(instance, token, period_start, period_end, status) {
-
     let prog = _$("#progress");
 
     //　現在までに取得しているtootの最大ID。これを指定してより過去のtootを取得するAPIを呼び出す
     let strMaxId = "";
-    if (minId >= 0) {
-        strMaxId = "&max_id=" + minId;
+    if (global.minId >= 0) {
+        strMaxId = "&max_id=" + global.minId;
     }
 
     let r = new XMLHttpRequest();
@@ -148,7 +197,7 @@ function getEntries(instance, token, period_start, period_end, status) {
         let json = JSON.parse(r.responseText);
 
         // APIの結果に自分のtootが含まれていれば処理を行う
-        if (Object.keys(json).length) {
+        if (Object.keys(json).length && global.isContinue) {
             if (json.error) {
                 pop_error(json.error);
                 return;
@@ -157,47 +206,64 @@ function getEntries(instance, token, period_start, period_end, status) {
             // APIで取得した最大40件のtootを分解する
             try {
                 json.forEach((toot) => {
-                let day = toot.created_at.replace(/[A-Z].+$/, "");
+                    let day = toot.created_at.replace(/[A-Z].+$/, "");
 
-                // 指定した期間内のtootのみ表示する
+                    // 指定した期間内のtootのみ表示する
                     if (period_start <= day && day <= period_end) {
-                        globalJson.push({
+                        if (global.json.length >= 5000) {
+                            getJson();
+                            global.json = [];
+                        }
+                        // global.json[global.json_index].push({
+                        global.json.push({
                             "created_at": toot.created_at,
                             "content": toot.content,
                             "url": toot.url,
                             "media_attachments": toot.media_attachments
                         });
-                        showEntries(toot);
+                        // showEntries(toot);
                     }
-                    _$("#now-date").innerText = toot.created_at;
+                    _$("#now-date").innerText = toot.created_at.replace(/T.*/, '');
 
-                    // console.log(prog.value + "/" + prog.max);
                     let link = r.getResponseHeader("Link");
                     if (/max_id=\d+/.test(link)) {
-                        minId = link.match(/max_id=\d+/)[0].replace(/max_id=/, "");
+                        global.minId = link.match(/max_id=\d+/)[0].replace(/max_id=/, "");
                         prog.value += 1;
-                        _$("#prog-num").innerHTML = Math.floor(prog.value / prog.max * 100) + "%";
+
+                        // 完了するまで100%にしないため分母を99で掛ける
+                        _$("#prog-num").innerHTML = Math.floor(prog.value / prog.max * 99) + "%";
                     } else {
-                        clearInterval(timer);
-                        _$("#prog-num").innerHTML = "100%";
-                        $("#spinner").toggleClass("d-none");
-                        _$("#process_time").innerText = process_time + " - " + getFormattedTime();
+                        // ファイルをダウンロードする
+                        getJson();
+                        global.json = [];
+
+                        // セーブポイントを消す
+                        removeSavePoint();
+
                         // ループを抜ける
                         throw new Exception();
                     }
                     if (day < period_start) {
-                        console.log(day + ", " + period_end);
-                        clearInterval(timer);
                         prog.value = prog.max;
-                        _$("#prog-num").innerHTML = "100%";
-                        $("#spinner").toggleClass("d-none");
-                        _$("#process_time").innerText = process_time + " - " + getFormattedTime();
+
+                        // ファイルをダウンロードする
+                        getJson();
+                        global.json = [];
+
+                        // セーブポイントを消す
+                        removeSavePoint();
+
                         // ループを抜ける
                         throw new Exception();
                     }
                 });
             } catch (e) {
                 // ループを抜ける
+                _$("#prog-num").innerHTML = "100%";
+                $("#spinner").addClass("d-none");
+                _$("#process_time").innerText = global.process_time + " 〜 " + getFormattedTime();
+
+                global.isContinue = false;
             }
         }
     };
@@ -223,9 +289,7 @@ function getImages(toot) {
     let retValue = "";
     let index = 1;
     imagesUrl.forEach((elem) => {
-        console.log(elem);
         let tmp = elem.split(" ");
-        console.log(tmp[0], tmp[1]);
         retValue += "<a href='" + tmp[1] + "' target='_brank'><img src='" + tmp[0] + "' width='256' height='256' alt='添付画像" + index++ + "'></a>";
     });
 
@@ -276,7 +340,7 @@ function hiddenBoost() {
 function saveForms() {
     let s = localStorage;
     s.setItem('instance', _$('#instance').value.trim());
-    s.setItem('username', _$('#username').value.trim());
+    // s.setItem('username', _$('#username').value.trim());
     s.setItem('token', _$('#token').value.trim());
     s.setItem('period', _$('#period').value.trim());
 }
@@ -287,7 +351,7 @@ function saveForms() {
  function loadForms() {
     let s = localStorage;
     _$('#instance').value = s.getItem('instance');
-    _$('#username').value = s.getItem('username');
+    // _$('#username').value = s.getItem('username');
     _$('#token').value = s.getItem('token');
     _$('#period').value = s.getItem('period');
 }
@@ -308,9 +372,35 @@ function getFormattedTime() {
  * 取得したtootを画面から削除する
  */
 function clearToots() {
-    minId = -1;
-    globalJson = [];
-    timer = null;
-    process_time = "";
-    _$('#result').innerHTML = "";
+    global.minId = -1,
+    global.json = [],
+    global.isContinue = true,
+    global.json_index = 0,
+    global.process_time = "";
+    // _$('#result').innerHTML = "";
+}
+
+/**
+ *
+ */
+function removeSavePoint() {
+    const period = getPeriodArray();
+    localStorage.removeItem(localStorage.getItem('token') + period[0] + period[1]);
+}
+
+window.onload = () => {
+    // localStorageからフォームの内容を読み込む
+    loadForms();
+
+    let instance = _$('#instance').value.trim();
+    instance = instance.indexOf('/', 8) == -1 ? instance : instance.substring(0, instance.indexOf('/', 8));
+
+    const token = _$('#token').value.trim();
+    const periodArray = getPeriodArray();
+    const save_point = localStorage.getItem(token + periodArray[0] + periodArray[1]);
+
+    // ダウンロード途中であればラベルを変更する
+    if (save_point) {
+        _$('#id_next').innerText = "続きから取得";
+    }
 }
