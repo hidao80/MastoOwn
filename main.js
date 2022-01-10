@@ -381,13 +381,14 @@ function clearToots() {
 }
 
 /**
- *
+ * セー府ポイントの削除
  */
 function removeSavePoint() {
     const period = getPeriodArray();
     localStorage.removeItem(localStorage.getItem('token') + period[0] + period[1]);
 }
 
+// 画面ロード時の初期化処理
 window.onload = () => {
     // localStorageからフォームの内容を読み込む
     loadForms();
