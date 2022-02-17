@@ -31,6 +31,9 @@ async function search() {
     }
 
     const periodArray = getPeriodArray();
+    const option = {
+        sendnotestock: $('#sendnotestock').prop('checked')
+    };
     const save_point = localStorage.getItem(token + periodArray[0] + periodArray[1]);
     global.minId = save_point ? save_point : -1;
 
@@ -55,7 +58,7 @@ async function search() {
     // もっと生かした仕組みができそうな気がするけど、実力が足りない
     do {
         await sleep(1500);
-        getEntries(instance, token, periodArray[0], periodArray[1], status);
+        getEntries(instance, token, periodArray[0], periodArray[1], status, option);
     } while (global.isContinue);
 }
 
@@ -182,8 +185,9 @@ function getStatus(instance, token) {
  * @param {*} period_start '2021-01-01' など、取得する期間の開始日
  * @param {*} period_end '2021-12-31' など、取得する期間の終了日
  * @param {*} status APIで取得したユーザー情報
+ * @param {*} option その他オプション {sendnotestock, ...}
  */
-function getEntries(instance, token, period_start, period_end, status) {
+function getEntries(instance, token, period_start, period_end, status, option) {
     let prog = _$("#progress");
 
     //　現在までに取得しているtootの最大ID。これを指定してより過去のtootを取得するAPIを呼び出す
@@ -205,6 +209,7 @@ function getEntries(instance, token, period_start, period_end, status) {
 
             // APIで取得した最大40件のtootを分解する
             try {
+                let targetUri = [];
                 json.forEach((toot) => {
                     let day = toot.created_at.replace(/[A-Z].+$/, "");
 
@@ -222,6 +227,9 @@ function getEntries(instance, token, period_start, period_end, status) {
                             "media_attachments": toot.media_attachments
                         });
                         // showEntries(toot);
+                        if (option.sendnotestock) {
+                            targetUri.push(toot.uri);
+                        }
                     }
                     _$("#now-date").innerText = toot.created_at.replace(/T.*/, '');
 
@@ -257,6 +265,12 @@ function getEntries(instance, token, period_start, period_end, status) {
                         throw new Exception();
                     }
                 });
+                if (targetUri && option.sendnotestock) {
+                    let notestock = new XMLHttpRequest();
+                    notestock.open("POST", "https://notestock.osa-p.net/api/v1/urlstock.json");
+                    notestock.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+                    notestock.send('url=' + encodeURIComponent(targetUri.join(',')));
+                }
             } catch (e) {
                 // ループを抜ける
                 _$("#prog-num").innerHTML = "100%";
@@ -404,4 +418,9 @@ window.onload = () => {
     if (save_point) {
         _$('#id_next').innerText = "続きから取得";
     }
+
+    var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'))
+    var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
+        return new bootstrap.Popover(popoverTriggerEl)
+    })
 }
