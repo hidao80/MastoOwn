@@ -265,7 +265,6 @@ function getEntries(instance, token, period_start, period_end, status, option) {
                         throw new Exception();
                     }
                 });
-                global.isContinue = false;
             } catch (e) {
                 // ループを抜ける
                 _$("#prog-num").innerHTML = "100%";
@@ -281,6 +280,7 @@ function getEntries(instance, token, period_start, period_end, status, option) {
 
                 global.isContinue = false;
             }
+            global.isContinue = false;
         }
     };
 
