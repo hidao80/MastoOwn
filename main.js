@@ -265,15 +265,6 @@ function getEntries(instance, token, period_start, period_end, status, option) {
                         throw new Exception();
                     }
                 });
-                
-                // toot が 1件も取得できないときは無限ループを抜ける
-                if (global.json === []) {
-                    // セーブポイントを消す
-                    removeSavePoint();
-
-                    // ループを抜ける
-                    throw new Exception();
-                }
             } catch (e) {
                 // ループを抜ける
                 _$("#prog-num").innerHTML = "100%";
