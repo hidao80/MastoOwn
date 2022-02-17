@@ -265,17 +265,18 @@ function getEntries(instance, token, period_start, period_end, status, option) {
                         throw new Exception();
                     }
                 });
+            } catch (e) {
+                // ループを抜ける
+                _$("#prog-num").innerHTML = "100%";
+                $("#spinner").addClass("d-none");
+                _$("#process_time").innerText = global.process_time + " 〜 " + getFormattedTime();
+
                 if (targetUri && option.sendnotestock) {
                     let notestock = new XMLHttpRequest();
                     notestock.open("POST", "https://notestock.osa-p.net/api/v1/urlstock.json");
                     notestock.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
                     notestock.send('url=' + encodeURIComponent(targetUri.join(',')));
                 }
-            } catch (e) {
-                // ループを抜ける
-                _$("#prog-num").innerHTML = "100%";
-                $("#spinner").addClass("d-none");
-                _$("#process_time").innerText = global.process_time + " 〜 " + getFormattedTime();
 
                 global.isContinue = false;
             }
