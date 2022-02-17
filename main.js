@@ -111,22 +111,22 @@ function _$(id) {
  */
 function getStatus(instance, token) {
     let r = new XMLHttpRequest();
-    r.open("GET",instance+'/api/v1/accounts/verify_credentials',false);
+    r.open("GET", instance + '/api/v1/accounts/verify_credentials', false);
     r.setRequestHeader("Authorization", "Bearer " + token);
     r.send(null);
 
     let json = JSON.parse(r.responseText);
     if (json) {
-    	return json;
+        return json;
     } else {
-    	return null;
+        return null;
     }
 }
 
 /**
  * 画面に表示しているtootをJSON形式ファイルでダウンロードする
  */
- function getJson() {
+function getJson() {
     // 現在取得している最後のtootのIDを取得し、セーブしておく
     const period = getPeriodArray();
     localStorage.setItem(localStorage.getItem('token') + period[0] + period[1], global.minId);
@@ -160,7 +160,7 @@ function getStatus(instance, token) {
 /**
  * 画面に表示しているtootをHTML形式ファイルでダウンロードする
  */
- function getHTML() {
+function getHTML() {
     // 現在取得している最後のtootのIDを取得し、セーブしておく
     const period = getPeriodArray();
     localStorage.setItem(localStorage.getItem('token') + period[0] + period[1], global.minId);
@@ -208,8 +208,8 @@ function getEntries(instance, token, period_start, period_end, status, option) {
             }
 
             // APIで取得した最大40件のtootを分解する
+            let targetUri = [];
             try {
-                let targetUri = [];
                 json.forEach((toot) => {
                     let day = toot.created_at.replace(/[A-Z].+$/, "");
 
@@ -363,7 +363,7 @@ function saveForms() {
 /**
  * フォームの内容をブラウザから読み込む
  */
- function loadForms() {
+function loadForms() {
     let s = localStorage;
     _$('#instance').value = s.getItem('instance');
     // _$('#username').value = s.getItem('username');
@@ -388,10 +388,10 @@ function getFormattedTime() {
  */
 function clearToots() {
     global.minId = -1,
-    global.json = [],
-    global.isContinue = true,
-    global.json_index = 0,
-    global.process_time = "";
+        global.json = [],
+        global.isContinue = true,
+        global.json_index = 0,
+        global.process_time = "";
     // _$('#result').innerHTML = "";
 }
 
