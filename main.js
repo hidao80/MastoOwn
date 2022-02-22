@@ -266,6 +266,7 @@ function getEntries(instance, token, period_start, period_end, status, option) {
                     }
                 });
                 if (targetUri && option.sendnotestock) {
+                    console.log(targetUri);
                     let notestock = new XMLHttpRequest();
                     notestock.open("POST", "https://notestock.osa-p.net/api/v1/urlstock.json");
                     notestock.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
@@ -279,6 +280,7 @@ function getEntries(instance, token, period_start, period_end, status, option) {
                 _$("#process_time").innerText = global.process_time + " 〜 " + getFormattedTime();
 
                 if (targetUri && option.sendnotestock) {
+                    console.log(targetUri);
                     let notestock = new XMLHttpRequest();
                     notestock.open("POST", "https://notestock.osa-p.net/api/v1/urlstock.json");
                     notestock.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
