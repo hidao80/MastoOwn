@@ -8,8 +8,7 @@
         integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous" />
     <link href="./style.css" rel="stylesheet" type="text/css">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
-        integrity="sha256-9SEPo+fwJFpMUet/KACSwO+Z/dKMReF9q4zFhU/fT9M="
-        crossorigin="anonymous"></script>
+        integrity="sha256-9SEPo+fwJFpMUet/KACSwO+Z/dKMReF9q4zFhU/fT9M=" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"
         referrerpolicy="no-referrer"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.qrcode/1.0/jquery.qrcode.min.js"
@@ -48,7 +47,9 @@
                             <label class="form-check-label" for="sendnotestock">
                                 notestockへ送信
                             </label>
-                            <button type="button" class="btn btn-sm btn-info" data-bs-toggle="popover" data-bs-html="true" title="notestockへ送信" data-bs-content="<a href='https://qiitadon.com/' target='_blank'>Qiitadon</a>など、ActivityPubの古い投稿参照（notestockの掘り返し）に対応していないサーバで、データを<a href='https://notestock.osa-p.net/' target='_blank'>notestock</a>に送信します。">?</button>
+                            <button type="button" class="btn btn-sm btn-info" data-bs-toggle="popover"
+                                data-bs-html="true" title="notestockへ送信"
+                                data-bs-content="<a href='https://qiitadon.com/' target='_blank'>Qiitadon</a>など、ActivityPubの古い投稿参照（notestockの掘り返し）に対応していないサーバで、データを<a href='https://notestock.osa-p.net/' target='_blank'>notestock</a>に送信します。">?</button>
                         </div>
                     </div>
                 </div>
@@ -57,7 +58,7 @@
         <div class="row mt-3">
             <div class="col-auto mt-3 align-items-center" style="height: 100%">
                 <a
-                href="https://github.com/hidao80/MastoOwn/blob/master/README.md#%E3%82%A2%E3%83%97%E3%83%AA%E3%82%B1%E3%83%BC%E3%82%B7%E3%83%A7%E3%83%B3%E3%83%88%E3%83%BC%E3%82%AF%E3%83%B3%E3%81%AE%E5%8F%96%E5%BE%97%E6%96%B9%E6%B3%95">トークンの取得方法</a>
+                    href="https://github.com/hidao80/MastoOwn/blob/master/README.md#%E3%82%A2%E3%83%97%E3%83%AA%E3%82%B1%E3%83%BC%E3%82%B7%E3%83%A7%E3%83%B3%E3%83%88%E3%83%BC%E3%82%AF%E3%83%B3%E3%81%AE%E5%8F%96%E5%BE%97%E6%96%B9%E6%B3%95">トークンの取得方法</a>
             </div>
             <!-- <div class="col-auto mt-3">
                 <form>
@@ -75,7 +76,7 @@
                 <span id="prog-num">0%</span>
             </div>
             <div class="col-auto mt-3 align-items-center" style="height: 100%">
-                ver. 2022-02-18
+                ver. 2022-02-22
             </div>
             <div class="col-auto mt-2">
                 <div class="input-group">
@@ -100,20 +101,20 @@
         <div class="row mt-3">
             <h2>使い方</h2>
             <p style="line-height: 1.625;">
-                <ul>
-                    <li>インスタンスのURL、アクセストークン、取得する期間を入力して「取得」ボタンを押してください。</li>
-                    <li>期間はYYYY-MM-DD YYYY-MM-DDの形式で入力してください。</li>
-                    <li>日付が一つだけの場合、入力された日から取得開始時点までを取得します。</li>
-                </ul>
+            <ul>
+                <li>インスタンスのURL、アクセストークン、取得する期間を入力して「取得」ボタンを押してください。</li>
+                <li>期間はYYYY-MM-DD YYYY-MM-DDの形式で入力してください。</li>
+                <li>日付が一つだけの場合、入力された日から取得開始時点までを取得します。</li>
+            </ul>
             </p>
             <h2>利用上の注意</h2>
             <p style="line-height: 1.625;">
-                <ul>
-                    <li>5,000件ごとにJSONファイルを自動でダウンロードします。2ファイルめをダウンロードするとき、複数ファイルのダウンロードを許可してください。</li>
-                    <li>JSONファイルをダウンロードしたタイミングでセーブポイントが作られ、次回起動時に同じ条件を指定した場合、セーブポイントからダウンロードを始めます。</li>
-                    <li>セーブポイントはダウンロード完了時に消去されます。</li>
-                    <li>tootの履歴を最近のものから順にたどるので、取得する時期が古いものになるほど完了までに時間がかかります。</li>
-                </ul>
+            <ul>
+                <li>5,000件ごとにJSONファイルを自動でダウンロードします。2ファイルめをダウンロードするとき、複数ファイルのダウンロードを許可してください。</li>
+                <li>JSONファイルをダウンロードしたタイミングでセーブポイントが作られ、次回起動時に同じ条件を指定した場合、セーブポイントからダウンロードを始めます。</li>
+                <li>セーブポイントはダウンロード完了時に消去されます。</li>
+                <li>tootの履歴を最近のものから順にたどるので、取得する時期が古いものになるほど完了までに時間がかかります。</li>
+            </ul>
             </p>
         </div>
     </div>
