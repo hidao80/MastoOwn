@@ -25,8 +25,15 @@ homeタイムラインを抽出対象としているので、アクセストー�
 
 ## 表示しているトゥートのダウンロード（HTMLフォーマット）
 
+Made with [contrib.rocks](https://contrib.rocks).
 処理速度向上のため、本機能は削除されました。
 
 ## TODO
 
 - [x] 日付で抽出範囲選択
+
+## Contributors
+
+<a href="https://github.com/hidao80/MastoOwn/graphs/contributors">
+  <img width="72" src="https://contrib.rocks/image?repo=hidao80/MastoOwn" />
+</a>
